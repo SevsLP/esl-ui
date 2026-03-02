@@ -1,16 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { supabase } from '../lib/supabaseClient';
+import { supabase } from "@/lib/supabaseClient"
 
 type DriverRow = {
   id: string;
   full_name: string | null;
   phone: string | null;
-
   employment_status: "active" | "fired" | null;
   employment_status_from: string | null;
-
   employment_status_planned: "active" | "fired" | null;
   employment_status_planned_from: string | null;
 };
@@ -22,180 +20,191 @@ type ScheduleRow = {
   work_status: "on_duty" | "off_day" | "sick_leave" | "vacation";
 };
 
-const TXT = {
-  title: "\u0413\u0440\u0430\u0444\u0438\u043a \u0432\u043e\u0434\u0438\u0442\u0435\u043b\u0435\u0439 (\u043d\u0435\u0434\u0435\u043b\u044f)",
-  week_of: "\u041d\u0435\u0434\u0435\u043b\u044f \u0441",
-  prev: "\u2190 \u041d\u0430\u0437\u0430\u0434",
-  next: "\u0412\u043f\u0435\u0440\u0451\u0434 \u2192",
-  refresh: "\u041e\u0431\u043d\u043e\u0432\u0438\u0442\u044c",
-  loading: "\u0417\u0430\u0433\u0440\u0443\u0437\u043a\u0430...",
-  err_prefix: "\u041e\u0448\u0438\u0431\u043a\u0430: ",
-  saved: "\u0421\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u043e",
-  not_saved: "\u041d\u0435 \u0441\u043e\u0445\u0440\u0430\u043d\u0438\u043b\u043e\u0441\u044c",
-  driver: "\u0412\u043e\u0434\u0438\u0442\u0435\u043b\u044c",
-  phone: "\u0422\u0435\u043b\u0435\u0444\u043e\u043d",
-
-  on_duty: "\u0420\u0430\u0431\u043e\u0442\u0430\u0435\u0442",
-  off_day: "\u0412\u044b\u0445\u043e\u0434\u043d\u043e\u0439",
-  sick_leave: "\u0411\u043e\u043b\u044c\u043d\u0438\u0447\u043d\u044b\u0439",
-  vacation: "\u041e\u0442\u043f\u0443\u0441\u043a",
-
-  mon: "\u041f\u043d",
-  tue: "\u0412\u0442",
-  wed: "\u0421\u0440",
-  thu: "\u0427\u0442",
-  fri: "\u041f\u0442",
-  sat: "\u0421\u0431",
-  sun: "\u0412\u0441",
-};
-
-const STATUS_OPTIONS: Array<ScheduleRow["work_status"]> = [
+const STATUS_OPTIONS: ScheduleRow["work_status"][] = [
   "on_duty",
   "off_day",
   "sick_leave",
   "vacation",
 ];
 
-function statusLabel(s: ScheduleRow["work_status"]) {
-  if (s === "on_duty") return TXT.on_duty;
-  if (s === "off_day") return TXT.off_day;
-  if (s === "sick_leave") return TXT.sick_leave;
-  return TXT.vacation;
+const TXT = {
+  title: "\u0413\u0440\u0430\u0444\u0438\u043a \u0432\u043e\u0434\u0438\u0442\u0435\u043b\u0435\u0439 (\u043d\u0435\u0434\u0435\u043b\u044f)",
+  week_of: "\u041d\u0435\u0434\u0435\u043b\u044f \u0441",
+  prev: "\u2190 \u041f\u0440\u043e\u0448\u043b\u0430\u044f",
+  next: "\u0421\u043b\u0435\u0434\u0443\u044e\u0449\u0430\u044f \u2192",
+  refresh: "\u041e\u0431\u043d\u043e\u0432\u0438\u0442\u044c",
+  loading: "\u0417\u0430\u0433\u0440\u0443\u0437\u043a\u0430...",
+  saved: "\u0421\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u043e",
+  not_saved: "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0441\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c",
+  err_prefix: "\u041e\u0448\u0438\u0431\u043a\u0430: ",
+  driver: "\u0412\u043e\u0434\u0438\u0442\u0435\u043b\u044c",
+  phone: "\u0422\u0435\u043b",
+};
+
+function pad2(n: number) {
+  return n < 10 ? `0${n}` : `${n}`;
 }
 
-function toISODate(d: Date) {
+function formatISODate(d: Date) {
   const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
+  const m = pad2(d.getMonth() + 1);
+  const dd = pad2(d.getDate());
+  return `${y}-${m}-${dd}`;
 }
 
-function parseISO(iso: string) {
-  const [y, m, d] = iso.split("-").map((x) => Number(x));
+function parseISODate(s: string) {
+  // YYYY-MM-DD
+  const [y, m, d] = s.split("-").map((x) => Number(x));
   return new Date(y, (m || 1) - 1, d || 1);
 }
 
-function startOfWeekMonday(d: Date) {
-  const day = d.getDay();
-  const diff = (day === 0 ? -6 : 1 - day);
-  const res = new Date(d);
-  res.setDate(d.getDate() + diff);
-  res.setHours(0, 0, 0, 0);
-  return res;
+function addDays(d: Date, days: number) {
+  const x = new Date(d.getTime());
+  x.setDate(x.getDate() + days);
+  return x;
 }
 
-function addDays(d: Date, n: number) {
-  const res = new Date(d);
-  res.setDate(d.getDate() + n);
-  return res;
+function startOfWeekMonday(d: Date) {
+  const x = new Date(d.getTime());
+  const day = x.getDay(); // 0 Sun ... 6 Sat
+  const diff = (day === 0 ? -6 : 1 - day); // shift to Monday
+  x.setDate(x.getDate() + diff);
+  x.setHours(0, 0, 0, 0);
+  return x;
 }
 
 function fmtRU(iso: string) {
-  const d = parseISO(iso);
-  const dd = String(d.getDate()).padStart(2, "0");
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const yy = d.getFullYear();
-  return `${dd}.${mm}.${yy}`;
+  // DD.MM
+  const dt = parseISODate(iso);
+  return `${pad2(dt.getDate())}.${pad2(dt.getMonth() + 1)}`;
 }
 
 function dayTitle(i: number) {
-  if (i === 0) return TXT.mon;
-  if (i === 1) return TXT.tue;
-  if (i === 2) return TXT.wed;
-  if (i === 3) return TXT.thu;
-  if (i === 4) return TXT.fri;
-  if (i === 5) return TXT.sat;
-  return TXT.sun;
+  // Monday..Sunday
+  const titles = [
+    "\u041f\u043d",
+    "\u0412\u0442",
+    "\u0421\u0440",
+    "\u0427\u0442",
+    "\u041f\u0442",
+    "\u0421\u0431",
+    "\u0412\u0441",
+  ];
+  return titles[i] || "";
 }
 
-function isDriverActiveOnDate(driver: DriverRow, isoDate: string) {
-  const date = parseISO(isoDate);
+function statusLabel(s: ScheduleRow["work_status"]) {
+  if (s === "on_duty") return "\u041d\u0430 \u0441\u043c\u0435\u043d\u0435";
+  if (s === "off_day") return "\u0412\u044b\u0445\u043e\u0434\u043d\u043e\u0439";
+  if (s === "sick_leave") return "\u0411\u043e\u043b\u044c\u043d\u0438\u0447\u043d\u044b\u0439";
+  if (s === "vacation") return "\u041e\u0442\u043f\u0443\u0441\u043a";
+  return s;
+}
 
-  const baseStatus = driver.employment_status;
-  const baseFrom = driver.employment_status_from ? parseISO(driver.employment_status_from) : null;
+function isDriverActiveOnDate(dr: DriverRow, dateISO: string) {
+  const planned = dr.employment_status_planned;
+  const plannedFrom = dr.employment_status_planned_from;
+  const current = dr.employment_status;
+  const currentFrom = dr.employment_status_from;
 
-  const plannedStatus = driver.employment_status_planned;
-  const plannedFrom = driver.employment_status_planned_from ? parseISO(driver.employment_status_planned_from) : null;
-
-  if (plannedStatus && plannedFrom && plannedFrom.getTime() <= date.getTime()) {
-    return plannedStatus === "active";
+  // if there is a plan and its date is <= dateISO, use planned state
+  if (planned && plannedFrom && plannedFrom <= dateISO) {
+    return planned === "active";
   }
 
-  if (baseStatus === "fired") {
-    if (!baseFrom) return false;
-    return baseFrom.getTime() > date.getTime();
+  // otherwise use current state (if fired since some date -> inactive from that date)
+  if (current === "fired") {
+    if (!currentFrom) return false;
+    return dateISO < currentFrom;
   }
 
   return true;
 }
 
-export default function Page() {
-  const [weekStart, setWeekStart] = useState(() => startOfWeekMonday(new Date()));
+type Toast = { id: string; kind: "success" | "error"; text: string };
+
+type Props = {
+  anchorDate: string; // YYYY-MM-DD
+};
+
+export default function DriverScheduleWeek({ anchorDate }: { anchorDate: string }) {
+  const weekStartOf = (d: Date) => {
+    const x = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+    const day = x.getUTCDay(); // 0=Sun
+    const diff = (day === 0 ? -6 : 1 - day); // Mon as start
+    x.setUTCDate(x.getUTCDate() + diff);
+    return x;
+  };
+
+  const [weekStart, setWeekStart] = useState(() => {
+    const base = anchorDate ? new Date(anchorDate + "T00:00:00Z") : new Date();
+    return weekStartOf(base);
+  });
+
+  // ✅ если диспетчер переключил дату — неделя в графике должна переякориться
+  useEffect(() => {
+    if (!anchorDate) return;
+    setWeekStart(startOfWeekMonday(parseISODate(anchorDate)));
+  }, [anchorDate]);
+
   const weekDates = useMemo(() => {
-    const arr: string[] = [];
-    for (let i = 0; i < 7; i++) arr.push(toISODate(addDays(weekStart, i)));
-    return arr;
+    const res: string[] = [];
+    for (let i = 0; i < 7; i++) res.push(formatISODate(addDays(weekStart, i)));
+    return res;
   }, [weekStart]);
 
   const [drivers, setDrivers] = useState<DriverRow[]>([]);
-  const [showFired, setShowFired] = useState(false);
   const [scheduleMap, setScheduleMap] = useState<Record<string, ScheduleRow>>({});
   const [loading, setLoading] = useState(false);
-
-  type Toast = { id: string; kind: "success" | "error" | "info"; text: string };
-  const [toasts, setToasts] = useState<Toast[]>([]);
   const [err, setErr] = useState("");
+  const [savingKey, setSavingKey] = useState("");
+  const [showFired, setShowFired] = useState(false);
 
+  const [toasts, setToasts] = useState<Toast[]>([]);
   function pushToast(kind: Toast["kind"], text: string) {
-    const id = `${Date.now()}_${Math.random().toString(16).slice(2)}`;
-    setToasts((prev) => [...prev, { id, kind, text }]);
-    window.setTimeout(() => {
+    const id = `${Date.now()}_${Math.random()}`;
+    setToasts((prev) => [{ id, kind, text }, ...prev].slice(0, 4));
+    setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 2200);
+    }, 2600);
   }
 
-  const [savingKey, setSavingKey] = useState<string>("");
-
   async function ensureWeekRows(driverRows: DriverRow[], map: Record<string, ScheduleRow>) {
-    // Создаём отсутствующие записи графика, чтобы диспетчер мог назначать водителей.
-    // По умолчанию: on_duty для активных водителей.
-    const bulk: ScheduleRow[] = [];
+    // ensure an entry exists for every active driver and day, default: on_duty
+    const inserts: ScheduleRow[] = [];
 
     for (const dr of driverRows) {
       for (const dt of weekDates) {
-        const activeHere = isDriverActiveOnDate(dr, dt);
-        if (!activeHere) continue;
+        const active = isDriverActiveOnDate(dr, dt);
+        if (!active) continue;
 
         const k = `${dr.id}__${dt}`;
         if (!map[k]) {
-          bulk.push({ driver_id: dr.id, work_date: dt, work_status: "on_duty" });
+          inserts.push({
+            driver_id: dr.id,
+            work_date: dt,
+            work_status: "on_duty",
+          });
         }
       }
     }
 
-    if (bulk.length === 0) return map;
+    if (inserts.length === 0) return map;
 
-    const up = await supabase
+    const res = await supabase
       .from("driver_schedule")
-      .upsert(bulk as any, { onConflict: "driver_id,work_date" })
-      .select("id, driver_id, work_date, work_status");
+      .upsert(inserts as any, { onConflict: "driver_id,work_date" });
 
-    if (up.error) {
-      pushToast("error", TXT.err_prefix + up.error.message);
+    if (res.error) {
+      pushToast("error", TXT.err_prefix + res.error.message);
       return map;
     }
 
     const next = { ...map };
-    for (const row of (up.data || []) as any[]) {
+    for (const row of inserts) {
       const k = `${row.driver_id}__${row.work_date}`;
-      next[k] = {
-        id: row.id,
-        driver_id: row.driver_id,
-        work_date: row.work_date,
-        work_status: row.work_status,
-      };
+      next[k] = row;
     }
-
     return next;
   }
 
@@ -306,18 +315,24 @@ export default function Page() {
           {TXT.week_of} {fmtRU(weekDates[0])}
         </div>
 
-        <button onClick={() => setWeekStart((d) => addDays(d, -7))}
-          style={{ padding: "8px 12px", borderRadius: 10, border: "1px solid #2a2a2a", background: "#0f0f0f", color: "#fff", cursor: "pointer" }}>
+        <button
+          onClick={() => setWeekStart((d) => addDays(d, -7))}
+          style={{ padding: "8px 12px", borderRadius: 10, border: "1px solid #2a2a2a", background: "#0f0f0f", color: "#fff", cursor: "pointer" }}
+        >
           {TXT.prev}
         </button>
 
-        <button onClick={() => setWeekStart((d) => addDays(d, 7))}
-          style={{ padding: "8px 12px", borderRadius: 10, border: "1px solid #2a2a2a", background: "#0f0f0f", color: "#fff", cursor: "pointer" }}>
+        <button
+          onClick={() => setWeekStart((d) => addDays(d, 7))}
+          style={{ padding: "8px 12px", borderRadius: 10, border: "1px solid #2a2a2a", background: "#0f0f0f", color: "#fff", cursor: "pointer" }}
+        >
           {TXT.next}
         </button>
 
-        <button onClick={load}
-          style={{ padding: "8px 12px", borderRadius: 10, border: "1px solid #2a2a2a", background: "#151515", color: "#fff", cursor: "pointer" }}>
+        <button
+          onClick={load}
+          style={{ padding: "8px 12px", borderRadius: 10, border: "1px solid #2a2a2a", background: "#151515", color: "#fff", cursor: "pointer" }}
+        >
           {TXT.refresh}
         </button>
 
@@ -353,7 +368,9 @@ export default function Page() {
               <tr key={dr.id}>
                 <td style={{ padding: "10px", borderBottom: "1px solid #111" }}>
                   <div style={{ fontWeight: 800 }}>{dr.full_name || ""}</div>
-                  <div style={{ fontSize: 12, opacity: 0.7 }}>{TXT.phone}: {dr.phone || ""}</div>
+                  <div style={{ fontSize: 12, opacity: 0.7 }}>
+                    {TXT.phone}: {dr.phone || ""}
+                  </div>
                 </td>
 
                 {weekDates.map((d) => {
@@ -404,6 +421,8 @@ export default function Page() {
       <div style={{ marginTop: 10, fontSize: 12, opacity: 0.7 }}>
         {"\u041f\u0440\u0430\u0432\u0438\u043b\u043e: \u0432 \u0433\u0440\u0430\u0444\u0438\u043a\u0435 \u0434\u043e\u043b\u0436\u043d\u0430 \u0431\u044b\u0442\u044c \u0437\u0430\u043f\u0438\u0441\u044c \u043d\u0430 \u043a\u0430\u0436\u0434\u044b\u0439 \u0434\u0435\u043d\u044c (\u043f\u043e \u0443\u043c\u043e\u043b\u0447\u0430\u043d\u0438\u044e \u0441\u043e\u0437\u0434\u0430\u0451\u0442\u0441\u044f on_duty)."}
       </div>
+
+      {err ? <div style={{ marginTop: 12, color: "#ff6b6b" }}>{TXT.err_prefix + err}</div> : null}
     </div>
   );
 }
