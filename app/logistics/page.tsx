@@ -748,11 +748,11 @@ return;
                             width: 8,
                             height: 8,
                             borderRadius: 999,
-                            background: statusDotColor(r.trip_status ?? "empty"),
+                           background: statusDotColor(r.trip_status ?? "plan"),
                             boxShadow: '0 0 0 3px rgba(255,255,255,0.04)',
                           }}
                         />
-                       {statusLabel(r.trip_status ?? "empty")}
+                       {statusLabel(r.trip_status ?? "plan")}
                       </span>
                     </td>
                     <td style={tdStyle}>
