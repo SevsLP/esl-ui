@@ -285,6 +285,7 @@ export default function CommercePage() {
   const [assignedByOrder, setAssignedByOrder] = useState<Record<string, number>>({});
 
   const [toast, setToast] = useState<Toast>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
@@ -322,6 +323,10 @@ export default function CommercePage() {
   useEffect(() => {
     void loadOrders();
     void loadSettings();
+    void (async () => {
+      const { data, error } = await supabase.auth.getUser();
+      setUserId(error ? null : data.user?.id ?? null);
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -651,14 +656,6 @@ const userId = user?.id ?? null;
 
     const vpv = toNumberOrNull(f.volume_per_vehicle);
     if (vpv === null || vpv < 0) return "\u041e\u0431\u044a\u0435\u043c \u043d\u0430 1 \u043c\u0430\u0448\u0438\u043d\u0443 \u0434\u043e\u043b\u0436\u0435\u043d \u0431\u044b\u0442\u044c \u0447\u0438\u0441\u043b\u043e\u043c \u2265 0";
-    if (form.has_original && !userId) {
-      showToast(
-        "err",
-        "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u043e\u043f\u0440\u0435\u0434\u0435\u043b\u0438\u0442\u044c \u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u044f. \u041e\u0442\u043c\u0435\u0442\u043a\u0430 \u00ab\u041e\u0440\u0438\u0433\u0438\u043d\u0430\u043b: \u0414\u0430\u00bb \u043d\u0435 \u0441\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u0441\u044f."
-      );
-      setSaving(false);
-      return;
-    }
     const rate = toNumberOrNull(f.rate_value);
     if (f.rate_value.trim() !== "" && (rate === null || rate < 0)) {
       return "\u0421\u0442\u0430\u0432\u043a\u0430 \u0434\u043e\u043b\u0436\u043d\u0430 \u0431\u044b\u0442\u044c \u0447\u0438\u0441\u043b\u043e\u043c \u2265 0";
