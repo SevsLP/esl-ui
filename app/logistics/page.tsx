@@ -778,7 +778,7 @@ return;
 
                         <select
                           value={r.trip_status ?? "plan"}
-                          onChange={(e) => r.trip_id && changeTripStatus(r.trip_id, e.target.value as TripStatus)}
+                          onChange={(e) => r.trip_id && changeStatus(r.trip_id, e.target.value as TripStatus)}
                           style={{
                             padding: '6px 10px',
                             borderRadius: 10,
