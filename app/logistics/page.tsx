@@ -772,7 +772,7 @@ return;
                       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                         <SmallButton
                           text={UI.act_assign}
-                          onClick={() => openAssign(r.trip_id, r.load_date)}
+                         onClick={() => r.trip_id && openAssign(r.trip_id, r.order_id)}
                           disabled={assignLoading}
                         />
 
