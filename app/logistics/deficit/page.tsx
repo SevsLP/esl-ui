@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
+import { supabase as supabaseClient } from "@/lib/supabaseClient";
 function fmtDateYYYYMMDD(d: Date): string {
   return d.toISOString().slice(0, 10);
 }
@@ -36,7 +37,7 @@ function orderNum(row: DeficitRow): string {
 }
 
 export default function LogisticsDeficitPage() {
-  const supabase = useMemo(() => getSupabaseClient(), []);
+  const supabase = supabaseClient;
   const [date, setDate] = useState<string>(() => fmtDateYYYYMMDD(new Date(Date.now() + 86400000)));
   const [rows, setRows] = useState<DeficitRow[]>([]);
   const [assignedCount, setAssignedCount] = useState<Map<string, number>>(new Map());
