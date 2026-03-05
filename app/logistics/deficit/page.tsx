@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { getSupabaseClient, fmtDateYYYYMMDD } from '../_shared/supabase';
-
+import { supabase } from '@/lib/supabaseClient';
+function fmtDateYYYYMMDD(d: Date): string {
+  return d.toISOString().slice(0, 10);
+}
 type DeficitRow = {
   order_id: string;
   order_number: string | null;
