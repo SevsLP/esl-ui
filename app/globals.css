@@ -3,8 +3,17 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
 
+  --esl-accent: #f28c28;
+  --esl-border: #2a2a2a;
+
+  /* Базовые цвета статусов */
+  --st-green: #39d353;   /* активен/ок */
+  --st-red: #ff6b6b;     /* ошибка/уволен */
+  --st-blue: #4da3ff;    /* перенос/инфо */
+  --st-yellow: #f7d154;  /* внимание/ремонт */
+  --st-gray: #9aa0a6;    /* нейтрально */
+}
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -25,18 +34,6 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 /* === ЕСЛ: единые плашки статусов (вся система) === */
-
-:root {
-  --esl-accent: #f28c28;
-  --esl-border: #2a2a2a;
-
-  /* Базовые цвета статусов */
-  --st-green: #39d353;   /* активен/ок */
-  --st-red: #ff6b6b;     /* ошибка/уволен */
-  --st-blue: #4da3ff;    /* перенос/инфо */
-  --st-yellow: #f7d154;  /* внимание/ремонт */
-  --st-gray: #9aa0a6;    /* нейтрально */
-}
 
 .status-badge {
   display: inline-flex;
@@ -64,7 +61,22 @@ body {
   background: var(--st-gray);
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.04);
 }
+/* чтобы плашку можно было использовать как кнопку */
+.status-toggle-button {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
 
+.status-toggle-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.status-toggle-button:hover .status-badge {
+  filter: brightness(1.08);
+}
 /* Водители */
 .status-active {
   border-color: rgba(57, 211, 83, 0.45);
@@ -289,6 +301,7 @@ body {
   font-weight: 800;
   font-size: 12px;
   outline: none;
+  min-width: 140px;
 }
 
 .esl-date:focus {
@@ -335,217 +348,7 @@ body {
    ESL: вкладки (как надо)
    ========================= */
 
-.esl-tabs {
-  display: inline-flex;
-  gap: 6px;
-  padding: 4px;
-  border-radius: 12px;
-  border: 1px solid #2a2a2a;
-  background: rgba(255, 255, 255, 0.03);
-}
-
-.esl-tab {
-  padding: 7px 10px;
-  border-radius: 10px;
-  border: 1px solid transparent;
-  background: transparent;
-  color: rgba(255,255,255,0.78);
-  font-weight: 800;
-  font-size: 12px;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.esl-tab-active {
-  border-color: rgba(242, 140, 40, 0.35);
-  background: rgba(242, 140, 40, 0.10);
-  color: #fff;
-}
-
-/* =========================
-   ESL: кнопки
-   ========================= */
-
-.esl-btn {
-  padding: 7px 10px;
-  border-radius: 10px;
-  border: 1px solid #2a2a2a;
-  background: rgba(255, 255, 255, 0.03);
-  color: #fff;
-  font-weight: 800;
-  font-size: 12px;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.esl-btn:disabled {
-  opacity: 0.45;
-  cursor: default;
-}
-
-/* =========================
-   ESL: инпуты (дата/комментарий)
-   ========================= */
-
-.esl-input {
-  width: 100%;
-  padding: 8px 12px;
-  border-radius: 10px;
-  border: 1px solid #2a2a2a;
-  background: #0b0b0b;
-  color: #fff;
-  font-weight: 700;
-  font-size: 12px;
-  outline: none;
-  transition: box-shadow 120ms ease, border-color 120ms ease;
-}
-
-.esl-input:focus {
-  border-color: rgba(200, 122, 30, 0.7);
-  box-shadow: 0 0 0 3px rgba(200, 122, 30, 0.14);
-}
-
-.esl-date {
-  min-width: 140px;
-}
-
-.esl-input-saving {
-  opacity: 0.9;
-  box-shadow: 0 0 0 3px rgba(200, 122, 30, 0.10);
-}
-
-/* =========================
-   ESL: таблица диспетчера
-   ========================= */
-
-.esl-dispatcher-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.esl-dispatcher-toolbar-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.esl-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-}
-
-.esl-th {
-  text-align: left;
-  padding: 10px 10px;
-  font-size: 12px;
-  font-weight: 800;
-  opacity: 0.85;
-  border-bottom: 1px solid rgba(255,255,255,0.12);
-  white-space: nowrap;
-}
-
-.esl-td {
-  padding: 8px 10px;
-  vertical-align: middle;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-}
-
-.esl-status-cell {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-/* компактный селект статуса справа от плашки */
-.esl-select-compact {
-  min-width: 160px;
-  width: 160px;
-}
-
-/* =========================
-   ESL: подсветка селекта статуса диспетчера
-   ========================= */
-
-.esl-select-work {
-  border-color: rgba(57, 211, 83, 0.55);
-  box-shadow: 0 0 0 2px rgba(57, 211, 83, 0.12), 0 0 16px rgba(57, 211, 83, 0.10);
-}
-
-.esl-select-transfer {
-  border-color: rgba(77, 163, 255, 0.60);
-  box-shadow: 0 0 0 2px rgba(77, 163, 255, 0.12), 0 0 16px rgba(77, 163, 255, 0.10);
-}
-
-.esl-select-repair {
-  border-color: rgba(247, 209, 84, 0.60);
-  box-shadow: 0 0 0 2px rgba(247, 209, 84, 0.12), 0 0 16px rgba(247, 209, 84, 0.10);
-}
-
-.esl-select-no_driver,
-.esl-select-no_trailer,
-.esl-select-other {
-  border-color: rgba(154, 160, 166, 0.55);
-  box-shadow: 0 0 0 2px rgba(154, 160, 166, 0.10);
-}
-/* вкладки */
-.esl-tabs {
-  display: inline-flex;
-  gap: 6px;
-  padding: 4px;
-  border-radius: 12px;
-  border: 1px solid #2a2a2a;
-  background: rgba(255, 255, 255, 0.03);
-}
-.esl-tab {
-  padding: 7px 10px;
-  border-radius: 10px;
-  border: 1px solid transparent;
-  background: transparent;
-  color: rgba(255,255,255,0.78);
-  font-weight: 800;
-  font-size: 12px;
-  line-height: 1;
-  cursor: pointer;
-}
-.esl-tab-active {
-  border-color: rgba(242, 140, 40, 0.35);
-  background: rgba(242, 140, 40, 0.10);
-  color: #fff;
-}
-
-/* кнопки (простые, под твой стиль) */
-.esl-btn {
-  padding: 7px 10px;
-  border-radius: 10px;
-  border: 1px solid #2a2a2a;
-  background: rgba(255, 255, 255, 0.03);
-  color: #fff;
-  font-weight: 800;
-  font-size: 12px;
-  line-height: 1;
-  cursor: pointer;
-}
-.esl-btn:disabled { opacity: 0.45; cursor: default; }
-
 /* календарь */
-.esl-date {
-  min-width: 150px;
-  padding: 8px 12px;
-  border-radius: 10px;
-  border: 1px solid #2a2a2a;
-  background: #0b0b0b;
-  color: #fff;
-  font-weight: 800;
-  font-size: 12px;
-  outline: none;
-}
-.esl-date:focus {
-  border-color: rgba(200, 122, 30, 0.7);
-  box-shadow: 0 0 0 3px rgba(200, 122, 30, 0.14);
-}
 
 /* подсветка статусов ДИСПЕТЧЕРА в селекте */
 .esl-select-work {
@@ -565,28 +368,6 @@ body {
 .esl-select-other {
   border-color: rgba(154, 160, 166, 0.55);
   box-shadow: 0 0 0 2px rgba(154, 160, 166, 0.10);
-}
-/* ===== Календарь (input type="date") ===== */
-.esl-date {
-  min-width: 150px;
-  padding: 8px 12px;
-  border-radius: 10px;
-  border: 1px solid #2a2a2a;
-  background: #0b0b0b;
-  color: #fff;
-  font-weight: 800;
-  font-size: 12px;
-  outline: none;
-  color-scheme: dark; /* чтобы календарь был тёмным */
-}
-.esl-date:focus {
-  border-color: rgba(200, 122, 30, 0.7);
-  box-shadow: 0 0 0 3px rgba(200, 122, 30, 0.14);
-}
-.esl-date::-webkit-calendar-picker-indicator {
-  filter: invert(1);
-  opacity: 0.9;
-  cursor: pointer;
 }
 
 /* ===== Модалка (окно) ===== */
@@ -793,13 +574,84 @@ body {
 /* Сетка */
 .commerce-page .commerce-grid {
   display: grid;
-  grid-template-columns: minmax(0,1fr) 420px;
+  grid-template-columns: minmax(0,1fr);
   gap: 16px;
   align-items: start;
 }
 @media (max-width: 1200px) {
   .commerce-page .commerce-grid { grid-template-columns: minmax(0,1fr); }
-  .commerce-page .commerce-card { position: relative !important; top: auto !important; }
+}
+
+/* Карточка снизу */
+.commerce-page { padding-bottom: 280px; }
+
+.commerce-page .commerce-bottom-card {
+  position: sticky;
+  bottom: 12px;
+  z-index: 30;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(8px);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.commerce-page .commerce-bottom-card-head {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+}
+
+.commerce-page .commerce-bottom-card-title {
+  font-weight: 1000;
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.commerce-page .commerce-bottom-card-sub {
+  opacity: 0.75;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.commerce-page .commerce-bottom-card-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+
+.commerce-page .commerce-bottom-tabs {
+  display: flex;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+  flex-wrap: wrap;
+}
+
+.commerce-page .commerce-bottom-empty {
+  padding: 14px;
+  opacity: 0.75;
+  font-weight: 800;
+}
+
+.commerce-page .commerce-bottom-body { padding: 14px; }
+
+.commerce-page .commerce-bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; }
+@media (max-width: 900px) { .commerce-page .commerce-bottom-grid { grid-template-columns: 1fr; } }
+
+.commerce-page .commerce-bottom-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.commerce-page .commerce-bottom-label { opacity: 0.75; font-size: 12px; font-weight: 900; }
+.commerce-page .commerce-bottom-value { font-weight: 900; font-size: 13px; }
+
+.commerce-page .commerce-shipments-add {
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.02);
 }
 
 /* Таблица */
@@ -932,3 +784,95 @@ body {
   color: #fff;
 }
 
+.chip:hover {
+  border-color: #666;
+}
+
+.commerce-page .chip.active {
+  background: #a35a00;
+  border-color: #a35a00;
+  color: white;
+}
+
+/* Scoped: Commerce only (prevents collisions with future pages) */
+.commerce-page .transport-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.commerce-page .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  font-size: 12px;
+}
+
+.commerce-page .chip-danger {
+  border-color: rgba(255, 130, 80, 0.35);
+  background: rgba(255, 130, 80, 0.10);
+}
+/* KPI (слева под фильтрами) */
+.commerce-page .commerce-kpi {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.commerce-page .commerce-kpi-item {
+  min-width: 160px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.03);
+}
+
+.commerce-page .commerce-kpi-label { opacity: 0.75; font-size: 12px; font-weight: 800; }
+.commerce-page .commerce-kpi-value { font-size: 16px; font-weight: 1000; margin-top: 4px; }
+
+
+/* === Commerce: inline checkbox + row panels === */
+.commerce-inline-check{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+.commerce-inline-check input{
+  width:16px;
+  height:16px;
+  accent-color:#d38a2c;
+}
+
+.commerce-panel-tabs{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+
+.commerce-panel-details{
+  display:grid;
+  gap:10px;
+}
+
+.commerce-panel-kv{
+  display:grid;
+  grid-template-columns:160px 1fr;
+  gap:12px;
+  align-items:center;
+}
+.commerce-panel-k{
+  opacity:0.75;
+  font-size:12px;
+}
+.commerce-panel-v{
+  opacity:0.95;
+}
+
+.commerce-details-row td{
+  border-top:1px solid rgba(255,255,255,0.06);
+}

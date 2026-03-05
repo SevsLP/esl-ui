@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useEffect } from 'react';
 import DispatcherDay from '../../components/DispatcherDay';
-import DriverScheduleWeek from '../../components/DriverScheduleWeek';
+import DriverScheduleWeek from "@/components/DriverScheduleWeek";
 import { supabase } from '../../lib/supabaseClient';
 
 const UI = {

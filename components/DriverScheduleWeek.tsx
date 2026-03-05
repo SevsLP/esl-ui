@@ -127,7 +127,7 @@ type Props = {
   anchorDate: string; // YYYY-MM-DD
 };
 
-export default function DriverScheduleWeek({ anchorDate }: { anchorDate: string }) {
+export default function DriverScheduleWeek({ anchorDate }: Props) {
   const weekStartOf = (d: Date) => {
     const x = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
     const day = x.getUTCDay(); // 0=Sun
