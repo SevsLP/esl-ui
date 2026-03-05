@@ -777,7 +777,7 @@ return;
                         />
 
                         <select
-                          value={r.trip_status}
+                          value={r.trip_status ?? "plan"}
                           onChange={(e) => changeStatus(r.trip_id, e.target.value as TripStatus)}
                           style={{
                             padding: '6px 10px',
